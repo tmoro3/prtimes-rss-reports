@@ -1,0 +1,26 @@
+name: Migrate RSS report layout
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Move PR TIMES reports under prtimes
+        run: |
+          set -eux
+          mkdir -p prtimes
+          if [ -f latest.html ]; then git mv latest.html prtimes/latest.html; fi
+          if [ -d reports ]; then git mv reports prtimes/reports; fi
+          if [ -f index.html ]; then git mv index.html prtimes/index.html; fi
+          cp .github/portal-index.html index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- index.html prtimes
+          git commit -m "Organize reports by source"
+          git push
